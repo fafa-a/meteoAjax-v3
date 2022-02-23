@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="meteoAjax-v3.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="meteoAjax-v3.js" defer></script>
+  </head>
+  <body>
+    <select id="ville">
+      <option value="toulouse">Toulouse</option>
+      <option value="bordeaux">Bordeaux</option>
+      <option value="paris">Paris</option>
+      <option value="marseille">Marseille</option>
+    </select>
+    <button id="meteo">click</button>
+    <br />
+    <input id="ville2" value="" /><button id="meteo2">chercher</button>
+    <button id="graph">graphique</button>
+    <hr />
+    <div id="madiv"></div>
+    <div id="container"></div>
+  </body>
+</html>
