@@ -1,15 +1,42 @@
 $("button#meteo").click(function () {
   const ville = $("select#ville option:selected").val()
-  console.log(ville)
-  console.log(`[${ville}]`)
   myAjax({ ville })
 })
 $("button#meteo2").click(function () {
   const ville = $("input#ville2").val()
-  console.log(`[${ville}]`)
   myAjax({ ville })
 })
 
+function fetchCitiesList() {
+  $.ajax({
+    url: "listCities.php",
+    type: "POST",
+    dataType: "json",
+    async: true,
+    success: function (data) {
+      addOptionInDatalist(data)
+    },
+    error: function (data) {
+      console.error(data)
+    },
+    complete: function (data) {
+      console.log("Cities list complete ! 🍾")
+    },
+  })
+}
+console.time("execution")
+fetchCitiesList()
+$("#ville2").attr("list", "cityList")
+$("#ville2").append(`
+<datalist id="cityList"></datalist>
+`)
+function addOptionInDatalist(list) {
+  $.each(list, function (key, value) {
+    const { name } = value
+    $("#cityList").append(`<option value="${name}"></option>`)
+  })
+}
+console.timeEnd("execution")
 function myAjax(city) {
   $.ajax({
     url: "meteoAjax-v2.php",
@@ -28,7 +55,7 @@ function myAjax(city) {
       ajaxError(data)
     },
     complete: function (data) {
-      console.log("end")
+      console.log("Mission complete ! 🍾")
     },
   })
 }
@@ -69,20 +96,19 @@ function addTable(data) {
       `)
     }
   })
-  function createArray(arr, props) {
-    const array = []
-    $.each(arr, function (key, value) {
+  $("button#graph").click(function () {
+    const tMinArray = []
+    const tMaxArray = []
+    const dayShortArray = []
+    $.each(data, function (key, value) {
+      const { tmin, tmax, day_short } = value
       const reg = "^fcst_day_"
       if (key.match(reg)) {
-        array.push(value[props])
+        tMinArray.push(tmin)
+        tMaxArray.push(tmax)
+        dayShortArray.push(day_short)
       }
     })
-    return array
-  }
-  $("button#graph").click(function () {
-    const minArray = createArray(data, "tmin")
-    const maxArray = createArray(data, "tmax")
-    const day = createArray(data, "day_short")
 
     const chart = Highcharts.chart("container", {
       chart: {
@@ -97,16 +123,16 @@ function addTable(data) {
         },
       },
       xAxis: {
-        categories: day,
+        categories: dayShortArray,
       },
       series: [
         {
           name: `${data.city_info.name}(Min)`,
-          data: minArray,
+          data: tMinArray,
         },
         {
           name: `${data.city_info.name}(Max)`,
-          data: maxArray,
+          data: tMaxArray,
         },
       ],
     })
@@ -114,13 +140,15 @@ function addTable(data) {
   })
 }
 function displayError(data) {
+  const { text, description } = data.errors[0]
   $("#madiv").html(``)
   $("#madiv").css({
-    backgroundColor: "red",
+    backgroundColor: "lightred",
+    border: "3px solid red",
     borderRadius: "5px",
     textAlign: "center",
     padding: "10px",
   })
-  $("#madiv").append(`<h1>${data.errors[0].text}</h1>`)
-  $("#madiv").append(`<p>${data.errors[0].description}</p>`)
+  $("#madiv").append(`<h1>❌ ${text} ❌</h1>`)
+  $("#madiv").append(`<p>${description}</p>`)
 }
